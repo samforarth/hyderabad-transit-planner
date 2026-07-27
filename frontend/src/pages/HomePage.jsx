@@ -71,7 +71,7 @@ const HomePage = () => {
   };
 
   return (
-    <div className="relative w-full mt-[60px]" style={{ height: "calc(100vh - 60px)" }}>
+    <div className="relative w-full" style={{ height: "100vh" }}>
       {/* Full-screen map — always visible and interactive */}
       <div className="absolute inset-0 z-0">
         <MapView
@@ -83,8 +83,8 @@ const HomePage = () => {
         />
       </div>
 
-      {/* Top-left search panel — below the navbar */}
-      <div className="absolute top-4 left-4 z-20 w-[380px] max-w-[calc(100vw-32px)]">
+      {/* Top-left search panel — well below the navbar */}
+      <div className="absolute top-20 left-4 z-20 w-[380px] max-w-[calc(100vw-32px)]">
         {/* Search form card */}
         <div className="glass-card bg-[#1e293b]/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-[#334155]/60 overflow-hidden animate-fade-in-up">
 
