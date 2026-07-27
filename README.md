@@ -98,7 +98,23 @@ hyderabad-transit-planner/
 
 ---
 
-##  Setup Instructions
+## 🚀 Quick Start (Docker)
+
+The fastest way to run on **any laptop** — no MySQL, Python, or Node.js required.
+
+```bash
+git clone https://github.com/samforarth/hyderabad-transit-planner.git
+cd hyderabad-transit-planner
+docker-compose up --build
+```
+
+First run takes ~3 minutes (imports 800K+ transit records). After that:
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:8000/docs
+
+---
+
+## 🛠 Manual Setup
 
 ### Prerequisites
 - Python 3.13+

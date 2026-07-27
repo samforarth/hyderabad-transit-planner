@@ -1,0 +1,55 @@
+version: "3.8"
+
+# ─────────────────────────────────────────────────────────────
+# Hyderabad Transit Planner — Docker Compose
+# Run: docker-compose up --build
+# Access: http://localhost:5173
+# ─────────────────────────────────────────────────────────────
+
+services:
+  # MySQL Database
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: transit123
+      MYSQL_DATABASE: hyderabad_transit
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # FastAPI Backend
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: transit123
+      DB_NAME: hyderabad_transit
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./data/gtfs:/data/gtfs:ro
+
+  # React Frontend
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: http://localhost:8000/api
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
