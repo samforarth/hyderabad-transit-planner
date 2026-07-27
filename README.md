@@ -20,7 +20,7 @@ The system:
 
 ---
 
-## 🏗 Architecture
+## Architecture
 
 ```
 User Search → Landmark Resolver → Nearest Stop Finder → Journey Generator → Journey Scorer → Frontend
@@ -42,7 +42,7 @@ User Search → Landmark Resolver → Nearest Stop Finder → Journey Generator 
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 hyderabad-transit-planner/
@@ -98,7 +98,7 @@ hyderabad-transit-planner/
 
 ---
 
-## 🚀 Setup Instructions
+##  Setup Instructions
 
 ### Prerequisites
 - Python 3.13+
@@ -159,7 +159,7 @@ The app is available at: http://localhost:5173
 
 ---
 
-## 📡 API Endpoints
+##  API Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -178,7 +178,7 @@ curl -X POST http://localhost:8000/api/recommend \
 
 ---
 
-## 🧠 Recommendation Engine
+##  Recommendation Engine
 
 The scoring algorithm ranks journeys using weighted criteria:
 
@@ -199,7 +199,7 @@ The lowest score is **recommended**. Others are **alternatives** with explanatio
 
 ---
 
-## 📊 Data Summary
+##  Data Summary
 
 | Table | Records | Description |
 |-------|---------|-------------|
@@ -226,7 +226,7 @@ Uses OpenStreetMap Nominatim API with Hyderabad bounding box. Results are cached
 
 ---
 
-## 🔮 Future Enhancements
+##  Future Enhancements
 
 - [x] IIT Hyderabad campus shuttle integration
 - [x] OSRM road-following route visualization
@@ -239,7 +239,7 @@ Uses OpenStreetMap Nominatim API with Hyderabad bounding box. Results are cached
 
 ---
 
-## 🛠 Built With
+##  Built With
 
 - **Frontend**: React, Tailwind CSS v4, Leaflet, React Router
 - **Backend**: Python, FastAPI, SQLAlchemy, Pydantic
