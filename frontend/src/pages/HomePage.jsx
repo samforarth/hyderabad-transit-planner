@@ -89,7 +89,7 @@ const HomePage = () => {
         <div className="glass-card bg-[#1e293b]/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-[#334155]/60 overflow-hidden animate-fade-in-up">
 
           {/* Search form or loading */}
-          <div className="px-5 pb-4">
+          <div className="px-5 pt-4 pb-4">
             {isLoading ? (
               <div className="py-6 flex flex-col items-center">
                 <div className="animate-bus-move text-3xl mb-3">🚌</div>
