@@ -4,7 +4,7 @@ An intelligent public transit recommendation platform for Hyderabad that analyze
 
 ---
 
-## 🎯 What It Does
+##  What It Does
 
 Instead of showing raw bus numbers, this app answers a simple question:
 
