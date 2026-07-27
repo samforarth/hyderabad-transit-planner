@@ -157,9 +157,26 @@ def find_transfer_journeys(source_stops: list, dest_stops: list, departure_time:
         (st, trip, route) for st, trip, route in source_st_query
         if is_time_after(st.departure_time, departure_time)
     ]
+    valid_source_st.sort(key=lambda x: time_to_minutes(x[0].departure_time))
 
-    # Filter out trips where we're boarding at the LAST stop (bus doesn't go anywhere).
-    # Use a single batch query instead of per-trip queries for performance.
+    # Deduplicate FIRST (cheap, in-memory) — guarantee every unique route gets its
+    # earliest trip before filling remaining slots. This keeps the list small before
+    # doing any DB queries.
+    seen_routes = set()
+    priority_entries = []
+    extra_entries = []
+    for entry in valid_source_st:
+        route_key = entry[2].route_id
+        if route_key not in seen_routes:
+            seen_routes.add(route_key)
+            priority_entries.append(entry)
+        else:
+            extra_entries.append(entry)
+
+    max_trips = 30
+    valid_source_st = priority_entries + extra_entries[:max_trips - len(priority_entries)]
+
+    # NOW filter out trips where we're boarding at the LAST stop (only 30 trips, fast).
     from sqlalchemy import func
     trip_ids = list({trip.trip_id for st, trip, route in valid_source_st})
     max_seqs = {}
@@ -176,28 +193,6 @@ def find_transfer_journeys(source_stops: list, dest_stops: list, departure_time:
         (st, trip, route) for st, trip, route in valid_source_st
         if st.stop_sequence < max_seqs.get(trip.trip_id, st.stop_sequence + 1)
     ]
-    valid_source_st.sort(key=lambda x: time_to_minutes(x[0].departure_time))
-
-    # Deduplicate: guarantee every unique route gets its earliest trip included.
-    # Without this, 30 campus shuttle trips could crowd out the PTC/Miyapur bus.
-    # Two-pass approach:
-    #   Pass 1: One trip per unique route (ensures diversity)
-    #   Pass 2: Fill remaining slots with additional trips
-    seen_routes = set()
-    priority_entries = []  # One per route (guaranteed slots)
-    extra_entries = []     # Additional trips (fill remaining capacity)
-
-    for entry in valid_source_st:
-        route_key = entry[2].route_id
-        if route_key not in seen_routes:
-            seen_routes.add(route_key)
-            priority_entries.append(entry)
-        else:
-            extra_entries.append(entry)
-
-    # Combine: priority first, then extras up to 30 total
-    max_trips = 30
-    valid_source_st = priority_entries + extra_entries[:max_trips - len(priority_entries)]
 
     # Track seen route combinations to avoid duplicates (same bus1 + bus2 combo)
     seen_combos = set()

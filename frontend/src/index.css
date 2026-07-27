@@ -103,6 +103,15 @@ body {
   border-top-color: rgba(15, 23, 42, 0.85) !important;
 }
 
+/* Force Leaflet zoom controls to bottom-right so they don't overlap the navbar */
+.leaflet-control-zoom {
+  position: absolute !important;
+  bottom: 20px !important;
+  right: 10px !important;
+  top: auto !important;
+  left: auto !important;
+}
+
 /* ── Animations ─────────────────────────────────────────────────────── */
 @keyframes fadeInUp {
   from {
