@@ -42,6 +42,7 @@ IITH_STOPS = {
 # Existing TSRTC stops (already in DB) that IITH buses connect to
 MIYAPUR_STOP_ID = "NZVBKXVQ"      # Miyapur (17.4967, 78.3608)
 PATANCHERU_STOP_ID = "enXMW3fY"    # Patancheruvu (17.529, 78.2643)
+SANGAREDDY_STOP_ID = "AZAndWqE"    # Sangareddy X Road (17.4802, 78.1357)
 
 
 # ──────────────────────────────────────────────────────────────────────
@@ -278,6 +279,7 @@ def main():
             ("IITH_SHUTTLE", "IITH Shuttle", 3),     # route_type 3 = bus
             ("IITH_MIYAPUR", "IITH-Miyapur", 3),
             ("IITH_PTC",     "IITH-Patancheru", 3),
+            ("IITH_SGD_AUTO", "Auto (Sangareddy-IITH)", 3),
         ]
         for route_id, name, rtype in routes_to_create:
             existing = db.query(Route).filter(Route.route_id == route_id).first()
@@ -295,7 +297,7 @@ def main():
         db.flush()
 
         # ── 5. Delete old IITH trips (for clean re-import) ────────────
-        old_trips = db.query(Trip).filter(Trip.route_id.in_(["IITH_SHUTTLE", "IITH_MIYAPUR", "IITH_PTC"])).all()
+        old_trips = db.query(Trip).filter(Trip.route_id.in_(["IITH_SHUTTLE", "IITH_MIYAPUR", "IITH_PTC", "IITH_SGD_AUTO"])).all()
         if old_trips:
             old_trip_ids = [t.trip_id for t in old_trips]
             db.query(StopTime).filter(StopTime.trip_id.in_(old_trip_ids)).delete(synchronize_session=False)
@@ -435,7 +437,54 @@ def main():
         print(f"   Shuttle trips: {shuttle_trips}")
         print(f"   Miyapur trips: {miyapur_trips}")
         print(f"   PTC trips:     {ptc_trips}")
-        print(f"   Total:         {shuttle_trips + miyapur_trips + ptc_trips} trips")
+
+        # ── 9. Import Sangareddy Shared Auto Trips ─────────────────────
+        print("\n📋 Importing Sangareddy shared auto schedule...")
+        auto_trips = 0
+        for hour in range(6, 23):
+            for minute in [0, 20, 40]:
+                trip_counter += 1
+                dep = f"{hour:02d}:{minute:02d}:00"
+                arr_h = hour + (minute + 15) // 60
+                arr_m = (minute + 15) % 60
+                arr = f"{arr_h:02d}:{arr_m:02d}:00"
+
+                # Sangareddy → IITH
+                tid_a = f"IITH_AUTO_{trip_counter:04d}A"
+                db.add(Trip(trip_id=tid_a, route_id="IITH_SGD_AUTO",
+                            service_id="IITH_DAILY", direction_id=0))
+                db.add(StopTime(trip_id=tid_a, stop_sequence=1,
+                                stop_id=SANGAREDDY_STOP_ID,
+                                arrival_time=dep, departure_time=dep))
+                db.add(StopTime(trip_id=tid_a, stop_sequence=2,
+                                stop_id="IITH_MAINGATE",
+                                arrival_time=arr, departure_time=arr))
+
+                # IITH → Sangareddy
+                tid_b = f"IITH_AUTO_{trip_counter:04d}B"
+                db.add(Trip(trip_id=tid_b, route_id="IITH_SGD_AUTO",
+                            service_id="IITH_DAILY", direction_id=1))
+                db.add(StopTime(trip_id=tid_b, stop_sequence=1,
+                                stop_id="IITH_MAINGATE",
+                                arrival_time=dep, departure_time=dep))
+                db.add(StopTime(trip_id=tid_b, stop_sequence=2,
+                                stop_id=SANGAREDDY_STOP_ID,
+                                arrival_time=arr, departure_time=arr))
+                auto_trips += 2
+
+        print(f"  ✅ Created {auto_trips} Sangareddy auto trips (every 20 min, 6AM-10PM)")
+        print(f"     Travel time: ~15 min | Cost: ₹20/person")
+
+        # ── Commit everything ──────────────────────────────────────────
+        db.commit()
+        print(f"\n{'='*60}")
+        print(f"✅ IITH bus import complete!")
+        print(f"   Shuttle trips: {shuttle_trips}")
+        print(f"   Miyapur trips: {miyapur_trips}")
+        print(f"   PTC trips:     {ptc_trips}")
+        print(f"   Auto trips:    {auto_trips}")
+        total = shuttle_trips + miyapur_trips + ptc_trips + auto_trips
+        print(f"   Total:         {total} trips")
         print(f"{'='*60}")
 
     except Exception as e:

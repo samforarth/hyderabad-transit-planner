@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { MapContainer, TileLayer, Polyline, useMap, useMapEvents, CircleMarker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Polyline, useMap, useMapEvents, CircleMarker, Marker, Popup, Tooltip, ZoomControl } from 'react-leaflet';
 import L from 'leaflet';
 
 // Fix for default Leaflet marker icons in Vite, though we use CircleMarker mainly
@@ -73,6 +73,18 @@ const FitBoundsHelper = ({ routeSegments, stops, sourceMarker, destMarker }) => 
   return null;
 };
 
+// Key landmarks shown on the homepage map so users can orient themselves
+const LANDMARKS = [
+  { name: 'IIT Hyderabad', lat: 17.5913, lon: 78.1195, emoji: '🎓' },
+  { name: 'Charminar', lat: 17.3616, lon: 78.4747, emoji: '🕌' },
+  { name: 'Secunderabad', lat: 17.4344, lon: 78.5013, emoji: '🚉' },
+  { name: 'Miyapur', lat: 17.4967, lon: 78.3608, emoji: '🚇' },
+  { name: 'IKEA', lat: 17.4258, lon: 78.3378, emoji: '🛒' },
+  { name: 'Gachibowli', lat: 17.4401, lon: 78.3489, emoji: '💼' },
+  { name: 'LB Nagar', lat: 17.3457, lon: 78.5522, emoji: '🏘️' },
+  { name: 'Sangareddy', lat: 17.6166, lon: 78.0868, emoji: '🚏' },
+];
+
 const MapView = ({
   center = [17.385, 78.486], // Default Hyderabad center
   zoom = 12,
@@ -82,6 +94,7 @@ const MapView = ({
   sourceMarker,
   destMarker,
   onMapClick,
+  showLandmarks = false,
   height = '100%'
 }) => {
   
@@ -91,8 +104,10 @@ const MapView = ({
         center={center} 
         zoom={zoom} 
         style={{ height: '100%', width: '100%', backgroundColor: '#0f172a' }}
-        zoomControl={true}
+        zoomControl={false}
       >
+        {/* Zoom controls at bottom-right to avoid navbar overlap */}
+        <ZoomControl position="bottomright" />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
@@ -190,6 +205,28 @@ const MapView = ({
             </Popup>
           </CircleMarker>
         )}
+
+        {/* Landmark labels on the homepage map */}
+        {showLandmarks && LANDMARKS.map((lm) => (
+          <CircleMarker
+            key={lm.name}
+            center={[lm.lat, lm.lon]}
+            radius={5}
+            fillColor="#0ea5e9"
+            color="#1e293b"
+            weight={2}
+            fillOpacity={0.9}
+          >
+            <Tooltip
+              direction="top"
+              offset={[0, -8]}
+              permanent
+              className="landmark-tooltip"
+            >
+              {lm.emoji} {lm.name}
+            </Tooltip>
+          </CircleMarker>
+        ))}
       </MapContainer>
     </div>
   );

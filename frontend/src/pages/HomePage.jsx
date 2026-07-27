@@ -75,11 +75,12 @@ const HomePage = () => {
       {/* Full-screen map — always visible and interactive */}
       <div className="absolute inset-0 z-0">
         <MapView
-          center={[17.385, 78.486]}
-          zoom={12}
+          center={[17.46, 78.32]}
+          zoom={11}
           onMapClick={handleMapClick}
           sourceMarker={sourcePin}
           destMarker={destPin}
+          showLandmarks
         />
       </div>
 

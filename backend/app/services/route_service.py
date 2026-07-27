@@ -158,17 +158,24 @@ def find_transfer_journeys(source_stops: list, dest_stops: list, departure_time:
         if is_time_after(st.departure_time, departure_time)
     ]
 
-    # Filter out trips where we're boarding at the LAST stop (bus doesn't go anywhere from here).
-    # Example: PTC→IITH bus arriving at IITH — boarding here has no onward stops for a transfer.
-    filtered_source_st = []
-    for st, trip, route in valid_source_st:
-        has_onward = db.query(StopTime).filter(
-            StopTime.trip_id == trip.trip_id,
-            StopTime.stop_sequence > st.stop_sequence
-        ).first()
-        if has_onward:
-            filtered_source_st.append((st, trip, route))
-    valid_source_st = filtered_source_st
+    # Filter out trips where we're boarding at the LAST stop (bus doesn't go anywhere).
+    # Use a single batch query instead of per-trip queries for performance.
+    from sqlalchemy import func
+    trip_ids = list({trip.trip_id for st, trip, route in valid_source_st})
+    max_seqs = {}
+    if trip_ids:
+        max_seq_query = (
+            db.query(StopTime.trip_id, func.max(StopTime.stop_sequence))
+            .filter(StopTime.trip_id.in_(trip_ids))
+            .group_by(StopTime.trip_id)
+            .all()
+        )
+        max_seqs = {tid: max_seq for tid, max_seq in max_seq_query}
+
+    valid_source_st = [
+        (st, trip, route) for st, trip, route in valid_source_st
+        if st.stop_sequence < max_seqs.get(trip.trip_id, st.stop_sequence + 1)
+    ]
     valid_source_st.sort(key=lambda x: time_to_minutes(x[0].departure_time))
 
     # Deduplicate: guarantee every unique route gets its earliest trip included.

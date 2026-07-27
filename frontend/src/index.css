@@ -87,6 +87,22 @@ body {
   border-radius: 16px;
 }
 
+/* Landmark label tooltips on the map */
+.landmark-tooltip {
+  background: rgba(15, 23, 42, 0.85) !important;
+  color: #e2e8f0 !important;
+  border: 1px solid rgba(51, 65, 85, 0.6) !important;
+  border-radius: 8px !important;
+  padding: 3px 8px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+  white-space: nowrap !important;
+}
+.landmark-tooltip::before {
+  border-top-color: rgba(15, 23, 42, 0.85) !important;
+}
+
 /* ── Animations ─────────────────────────────────────────────────────── */
 @keyframes fadeInUp {
   from {
