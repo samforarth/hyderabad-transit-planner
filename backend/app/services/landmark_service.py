@@ -181,32 +181,48 @@ def search_autocomplete(query: str, db: Session, limit: int = 8) -> list:
     """
     Autocomplete search for stops and cached landmarks.
     Searches both stops and previously cached landmarks, returning a combined deduplicated list.
+    Exact/prefix matches are sorted before substring matches so the most relevant result is first.
     """
     results = []
-    
-    # Search stops table (case insensitive)
-    stops = db.query(Stop).filter(Stop.stop_name.ilike(f"%{query}%")).limit(limit).all()
+    seen_names = set()
+
+    # Search stops table (case insensitive), fetch extra to allow deduplication
+    stops = db.query(Stop).filter(Stop.stop_name.ilike(f"%{query}%")).limit(limit * 3).all()
     for stop in stops:
+        name_key = stop.stop_name.lower()
+        if name_key in seen_names:
+            continue
+        seen_names.add(name_key)
         results.append({
             "name": stop.stop_name,
             "type": "stop",
             "lat": stop.stop_lat,
             "lon": stop.stop_lon
         })
-        
-    # If we haven't hit the limit, search landmarks cache
-    remaining_limit = limit - len(results)
-    if remaining_limit > 0:
-        landmarks = db.query(Landmark).filter(Landmark.name.ilike(f"%{query}%")).limit(remaining_limit).all()
-        for lm in landmarks:
-            # Avoid duplicates if a stop and landmark have similar names/coordinates
-            # (Simple deduplication by name)
-            if not any(r["name"].lower() == lm.name.lower() for r in results):
-                results.append({
-                    "name": lm.name,
-                    "type": "landmark",
-                    "lat": lm.lat,
-                    "lon": lm.lon
-                })
-                
+
+    # Search landmarks cache
+    landmarks = db.query(Landmark).filter(Landmark.name.ilike(f"%{query}%")).limit(limit).all()
+    for lm in landmarks:
+        name_key = lm.name.lower()
+        if name_key in seen_names:
+            continue
+        seen_names.add(name_key)
+        results.append({
+            "name": lm.display_name or lm.name,
+            "type": "landmark",
+            "lat": lm.lat,
+            "lon": lm.lon
+        })
+
+    # Sort: exact match first, then prefix match, then substring match
+    q_lower = query.lower()
+    def sort_key(r):
+        name = r["name"].lower()
+        if name == q_lower:
+            return 0  # Exact match
+        if name.startswith(q_lower):
+            return 1  # Prefix match
+        return 2      # Substring match
+
+    results.sort(key=sort_key)
     return results[:limit]

@@ -5,6 +5,9 @@ const SearchForm = ({ onSearch, initialSource = "", initialDestination = "" }) =
   const [source, setSource] = useState(initialSource);
   const [destination, setDestination] = useState(initialDestination);
   const [departureTime, setDepartureTime] = useState('');
+  const [selectedDay, setSelectedDay] = useState(
+    ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date().getDay()]
+  );
   
   const [sourceResults, setSourceResults] = useState([]);
   const [destResults, setDestResults] = useState([]);
@@ -113,7 +116,7 @@ const SearchForm = ({ onSearch, initialSource = "", initialDestination = "" }) =
     if (!source || !destination) return;
     setIsSearching(true);
     try {
-      await onSearch(source, destination, departureTime);
+      await onSearch(source, destination, departureTime, selectedDay);
     } finally {
       setIsSearching(false);
     }
@@ -207,6 +210,23 @@ const SearchForm = ({ onSearch, initialSource = "", initialDestination = "" }) =
             value={departureTime}
             onChange={(e) => setDepartureTime(e.target.value)}
           />
+        </div>
+
+        {/* Day Picker */}
+        <div className="flex items-center gap-1.5 justify-center">
+          {['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((d, i) => (
+            <button
+              key={d}
+              type="button"
+              onClick={() => setSelectedDay(d)}
+              className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all
+                ${selectedDay === d 
+                  ? 'bg-[#0ea5e9] text-white shadow-md shadow-[#0ea5e9]/30' 
+                  : 'bg-[#1e293b] text-[#94a3b8] hover:bg-[#334155] border border-[#334155]'}`}
+            >
+              {d}
+            </button>
+          ))}
         </div>
 
         {/* Submit Button */}
