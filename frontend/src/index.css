@@ -1,0 +1,281 @@
+/*
+ * Hyderabad Transit Planner — Global Styles
+ * ==========================================
+ * Uses Tailwind CSS v4 with custom design tokens.
+ * Dark-themed color palette with teal/cyan accents for a premium feel.
+ */
+
+@import "tailwindcss";
+
+/* ── Custom Theme Variables ─────────────────────────────────────────── */
+@theme {
+  /* Primary brand colors — teal/cyan gradient */
+  --color-primary: #0ea5e9;
+  --color-primary-light: #38bdf8;
+  --color-primary-dark: #0284c7;
+
+  /* Accent colors */
+  --color-accent: #14b8a6;
+  --color-accent-light: #2dd4bf;
+  --color-accent-dark: #0d9488;
+
+  /* Dark theme backgrounds */
+  --color-bg-primary: #0f172a;
+  --color-bg-secondary: #1e293b;
+  --color-bg-card: #1e293b;
+  --color-bg-elevated: #334155;
+
+  /* Text colors */
+  --color-text-primary: #f1f5f9;
+  --color-text-secondary: #94a3b8;
+  --color-text-muted: #64748b;
+
+  /* Status colors */
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+
+  /* Glass effect */
+  --color-glass: rgba(30, 41, 59, 0.8);
+  --color-glass-border: rgba(148, 163, 184, 0.15);
+
+  /* Recommended badge */
+  --color-gold: #f59e0b;
+  --color-gold-light: #fbbf24;
+}
+
+/* ── Base Styles ────────────────────────────────────────────────────── */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* ── Scrollbar Styling ──────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-bg-elevated);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
+/* ── Glass Card Effect ──────────────────────────────────────────────── */
+.glass-card {
+  background: var(--color-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--color-glass-border);
+  border-radius: 16px;
+}
+
+/* ── Animations ─────────────────────────────────────────────────────── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(14, 165, 233, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(14, 165, 233, 0.4);
+  }
+}
+
+@keyframes bus-move {
+  0% { transform: translateX(-10px); }
+  50% { transform: translateX(10px); }
+  100% { transform: translateX(-10px); }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.4s ease-out forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-bus-move {
+  animation: bus-move 2s ease-in-out infinite;
+}
+
+/* Staggered animation delays for card lists */
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+
+/* ── Gradient Backgrounds ───────────────────────────────────────────── */
+.gradient-primary {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+}
+
+.gradient-hero {
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0) 0%, rgba(15, 23, 42, 0.95) 100%);
+}
+
+/* ── Recommended Badge Glow ─────────────────────────────────────────── */
+.recommended-glow {
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.15),
+              0 4px 20px rgba(14, 165, 233, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+/* ── Leaflet Map Overrides ──────────────────────────────────────────── */
+.leaflet-container {
+  border-radius: 12px;
+  z-index: 1;
+}
+
+.leaflet-popup-content-wrapper {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.leaflet-popup-tip {
+  background: var(--color-bg-secondary);
+}
+
+.leaflet-popup-content {
+  margin: 12px 16px;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+}
+
+/* ── Input Styling ──────────────────────────────────────────────────── */
+.search-input {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-glass-border);
+  border-radius: 12px;
+  color: var(--color-text-primary);
+  padding: 14px 16px;
+  font-size: 15px;
+  font-family: "Inter", sans-serif;
+  width: 100%;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.search-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+}
+
+.search-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* ── Button Styles ──────────────────────────────────────────────────── */
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 28px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: "Inter", sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 25px rgba(14, 165, 233, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Timeline Styles ────────────────────────────────────────────────── */
+.timeline-line {
+  position: absolute;
+  left: 19px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(
+    180deg,
+    var(--color-primary) 0%,
+    var(--color-accent) 100%
+  );
+}
+
+.timeline-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--color-primary);
+  background: var(--color-bg-primary);
+  z-index: 2;
+  position: relative;
+}
+
+.timeline-dot.active {
+  background: var(--color-primary);
+  box-shadow: 0 0 10px rgba(14, 165, 233, 0.5);
+}

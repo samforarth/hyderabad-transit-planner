@@ -1,0 +1,24 @@
+# ──────────────────────────────────────────────────────
+# Backend Dependencies — Hyderabad Transit Planner
+# ──────────────────────────────────────────────────────
+# Web framework
+fastapi==0.115.0
+uvicorn[standard]==0.34.0
+
+# Database ORM and driver
+sqlalchemy>=2.0
+pymysql
+cryptography          # Required for MySQL 8 caching_sha2_password authentication
+
+# Data validation
+pydantic>=2.0
+pydantic-settings     # Needed for BaseSettings to load .env files
+
+# Environment variables
+python-dotenv
+
+# HTTP client (for calling Nominatim geocoding API)
+httpx
+
+# CORS middleware (included with FastAPI, listed for clarity)
+# starlette is installed automatically as a FastAPI dependency
