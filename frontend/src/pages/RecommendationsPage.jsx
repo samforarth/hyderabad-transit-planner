@@ -21,6 +21,7 @@ import {
   formatTime,
   getBusColor,
 } from "../utils/formatters.js";
+import { getRecommendations } from "../api/transit.js";
 
 const RecommendationsPage = () => {
   const location = useLocation();
@@ -151,30 +152,79 @@ const RecommendationsPage = () => {
     });
   };
 
+  // ── Editable search bar state ────────────────────────────────────────
+  const [editSource, setEditSource] = useState(source);
+  const [editDest, setEditDest] = useState(destination);
+  const [editTime, setEditTime] = useState(departureTime || "");
+  const [isReSearching, setIsReSearching] = useState(false);
+
+  const handleReSearch = async () => {
+    if (!editSource || !editDest) return;
+    setIsReSearching(true);
+    try {
+      const newData = await getRecommendations(editSource, editDest, editTime);
+      navigate("/recommendations", {
+        state: { data: newData, source: editSource, destination: editDest, departureTime: editTime },
+        replace: true,
+      });
+      setSelectedIndex(0);
+    } catch (err) {
+      console.error("Re-search failed:", err);
+    } finally {
+      setIsReSearching(false);
+    }
+  };
+
   return (
     <div className="flex flex-col h-[calc(100vh-60px)] w-full bg-[#0f172a] text-[#f1f5f9]">
-      {/* Top bar — source → destination */}
-      <div className="flex items-center px-4 py-3 bg-[#1e293b] border-b border-[#334155] z-10 shadow-sm shrink-0">
+      {/* Editable search bar — tweak source, destination, or time and re-search */}
+      <div className="flex items-center gap-2 px-4 py-2.5 bg-[#1e293b] border-b border-[#334155] z-10 shadow-sm shrink-0">
         <Link
           to="/"
-          className="mr-4 p-2 rounded-full hover:bg-[#334155] transition-colors text-[#94a3b8] hover:text-white"
+          className="p-2 rounded-full hover:bg-[#334155] transition-colors text-[#94a3b8] hover:text-white shrink-0"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
         </Link>
-        <div className="flex-1 truncate">
-          <h2 className="text-lg font-semibold truncate">
-            {source_info.name}
-            <span className="text-[#64748b] mx-2">→</span>
-            {destination_info.name}
-          </h2>
-          {departureTime && (
-            <p className="text-xs text-[#94a3b8]">Departure: {departureTime}</p>
-          )}
-        </div>
-        <div className="text-xs text-[#94a3b8] bg-[#334155] px-3 py-1 rounded-full ml-2">
-          {allJourneys.length} route{allJourneys.length !== 1 ? "s" : ""} found
+
+        {/* Source */}
+        <input
+          type="text"
+          value={editSource}
+          onChange={(e) => setEditSource(e.target.value)}
+          className="flex-1 min-w-0 bg-[#0f172a] text-[#f1f5f9] text-sm px-3 py-1.5 rounded-lg border border-[#334155] focus:border-[#0ea5e9] outline-none truncate"
+        />
+
+        <span className="text-[#64748b] text-sm shrink-0">→</span>
+
+        {/* Destination */}
+        <input
+          type="text"
+          value={editDest}
+          onChange={(e) => setEditDest(e.target.value)}
+          className="flex-1 min-w-0 bg-[#0f172a] text-[#f1f5f9] text-sm px-3 py-1.5 rounded-lg border border-[#334155] focus:border-[#0ea5e9] outline-none truncate"
+        />
+
+        {/* Time */}
+        <input
+          type="time"
+          value={editTime}
+          onChange={(e) => setEditTime(e.target.value)}
+          className="bg-[#0f172a] text-[#f1f5f9] text-sm px-3 py-1.5 rounded-lg border border-[#334155] focus:border-[#0ea5e9] outline-none [color-scheme:dark] w-[100px] shrink-0"
+        />
+
+        {/* Re-search */}
+        <button
+          onClick={handleReSearch}
+          disabled={isReSearching || !editSource || !editDest}
+          className="bg-[#0ea5e9] hover:bg-[#0284c7] text-white text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors shrink-0 disabled:opacity-50"
+        >
+          {isReSearching ? "..." : "Search"}
+        </button>
+
+        <div className="text-xs text-[#94a3b8] bg-[#334155] px-3 py-1 rounded-full shrink-0">
+          {allJourneys.length} route{allJourneys.length !== 1 ? "s" : ""}
         </div>
       </div>
 
